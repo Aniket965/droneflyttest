@@ -33,3 +33,29 @@ html,body {
     border: 1px solid black;
     border-radius: 4px;
 }
+.btn {
+    // background:pink;
+    font-size: 5rem;
+    border: 10px solid rgb(132, 0, 255);
+    border-radius: 14px;
+    color: black;
+}
+.btn:hover {
+    background: rgb(132, 0, 255);
+    color: rgb(251, 255, 11);
+    cursor: pointer;
+}
+
+.drone-controller {
+    display: grid;
+    gap: 10px;
+    .dc-lr-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 1fr 1fr;
+        
+    }
+    .dc-left,.dc-right,.dc-up,.dc-down {
+        text-align: center;
+    }
+}

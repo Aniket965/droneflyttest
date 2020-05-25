@@ -18,8 +18,21 @@
     <!-- <p>latitude: {{latitude}}</p>
     <p>Longitude: {{longitude}}</p> -->
   </div>
-  <div class="drone-controller outline">
-  
+  <div class="drone-controller ">
+    <div (click)='moveDroneUp()' class="btn dc-up">
+      ▲
+    </div>
+    <div class="dc-lr-grid">
+      <div (click)='moveDroneLeft()' class="btn dc-left">
+        ◄
+      </div>
+      <div (click)='moveDroneRight()'  class="btn dc-right">
+        ►
+      </div>
+    </div>
+    <div (click)='moveDroneDown()'  class="btn dc-down">
+      ▼
+    </div>
   </div>
 
 </div>
