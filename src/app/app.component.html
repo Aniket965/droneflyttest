@@ -14,15 +14,18 @@
 <div class="drone-board">
   <div class="drone-stats outline">
     <h2 style="text-align: center;">Drone Stats</h2>
+   <p style="text-align: center;"> {{droneStatus}}</p>
+    <!-- <p>latitude: {{latitude}}</p>
+    <p>Longitude: {{longitude}}</p> -->
   </div>
   <div class="drone-controller outline">
-
+  
   </div>
 
 </div>
 
 <div class="drone-map-view outline">
-<app-mapview></app-mapview>
+  <div #mapContainer id="map"></div>
 </div>
 </div>
 
