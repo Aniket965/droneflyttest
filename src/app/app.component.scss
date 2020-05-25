@@ -1,0 +1,31 @@
+html,body {
+    font-family: 'Press Start 2P', cursive;
+}
+
+.heading {
+    text-align: center;
+    h1 {
+        font-size: 3rem;
+        background: yellow;
+    }
+}
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    div {
+        min-height: 100px;
+        min-width: 100px;
+    }
+    .drone-board {
+        display: grid;
+        gap: 1rem;
+    }
+    .drone-map-view {
+        min-height: 80vh;
+    }
+}
+.outline {
+    border: 1px solid black;
+    border-radius: 4px;
+}
