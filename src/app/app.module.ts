@@ -4,7 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MapviewComponent } from './mapview/mapview.component';
-
+import {DronePositionService} from './drone-position.service'
+import { DroneControllerService } from './drone-controller.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -14,7 +15,7 @@ import { MapviewComponent } from './mapview/mapview.component';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [DronePositionService, DroneControllerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

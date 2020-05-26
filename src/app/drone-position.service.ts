@@ -1,9 +1,16 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class DronePositionService {
-  public lat:BehaviorSubject<any> = new BehaviorSubject<any>(0);
-  public long:BehaviorSubject<any> = new BehaviorSubject<any>(0);
+  private locationSocket:WebSocketSubject<String> = webSocket('ws://localhost:4000/GlobalPosition');
+  
+  getLocationUpdates():Observable<any> {
+    return this.locationSocket.asObservable();
+  }
+  sendStartMessage(): void {
+    this.locationSocket.next('start');
+  }
 }
