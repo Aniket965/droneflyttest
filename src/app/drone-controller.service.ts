@@ -5,8 +5,7 @@ import * as ROSLIB from 'roslib';
   providedIn: 'root'
 })
 export class DroneControllerService {
-  lat = 0;
-  long = 0;
+
   drone = {
     'token': 'afdcebc27c38e43cb2684665aa93e7fcf9e4a0de',
     'vehicalID': 'ewPJUae3'
