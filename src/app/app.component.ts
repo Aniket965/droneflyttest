@@ -99,7 +99,6 @@ export class AppComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
     this.marker.setMap(this.map);
-  
     this.locationSocket.asObservable().subscribe( (data:any) => {
       const { latitude, longitude } = data;
       let location = new google.maps.LatLng(latitude, longitude);
@@ -107,7 +106,9 @@ export class AppComponent implements AfterViewInit {
       this.marker.setPosition(location);
 
     });
-
+    
+    // start getting location update
+    this.locationSocket.next('start');
     
     const authService = new ROSLIB.Service({
       ros: this.ros,

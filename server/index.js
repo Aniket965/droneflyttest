@@ -23,11 +23,12 @@ const request = new ROSLIB.ServiceRequest({
     authorization: 'Token ' + process.env["TOKEN"]
 });
 
+console.log('Starting Server...');
+
 ros.on('connection', (id)=> {
     authService.callService(request, result => {
         if (result.success) {          
-          console.log('Sccess > ', result);
-          
+          console.log('Server Started and Auth Sccess > ', result);
           
           const namespace = new ROSLIB.Service({
             ros: ros,
@@ -36,8 +37,10 @@ ros.on('connection', (id)=> {
           });
 
           namespace.callService(new ROSLIB.ServiceRequest({}), function (result) {
-              if(result.success)
+            if(result.success) {
                 ns = result.param_info.param_value;
+
+            } else console.log('Error: Not able to get namespace,hence stoping server')
             });
         }
     });
@@ -45,29 +48,39 @@ ros.on('connection', (id)=> {
 
 });
 
-app.get('/hi', (req,res) => {
+app.get('/namespace', (req,res) => {
     res.send(`Hello, World! your flight namespace is ${ns}`);
 });
 
 app.ws('/GlobalPosition', function(ws, req) {
-    ws.on('message', function(msg) {
-
-            console.log('starting')
-            const gpsData = new ROSLIB.Topic({
-                ros: ros,
-                name: '/' + ns + '/mavros/global_position/global',
-                messageType: 'sensor_msgs/NavSatFix'
-              });
-  
-              gpsData.subscribe(function (message) {
-                const { latitude, longitude } = message;
-                    ws.send(JSON.stringify(message));
-              });
-        
-      
+    let connected = false;
+    const gpsData = new ROSLIB.Topic({
+        ros: ros,
+        name: '/' + ns + '/mavros/global_position/global',
+        messageType: 'sensor_msgs/NavSatFix'
     });
+
+
+    ws.on('message', function(msg) {
+            connected = true;
+            gpsData.subscribe(function (message) {
+            const { latitude, longitude } = message;
+                if(connected)    
+                    ws.send(JSON.stringify(message));
+            });
+    
+    });
+
+    ws.on('close', _=> {
+        connected = false;
+        gpsData.unsubscribe(_=> {
+            console.log('unsubscribed from gps data');
+        });
+    });
+
 });
 
+
 const server = app.listen(process.env.PORT || 4000, () => {
-    console.log(`Server started on port ${server.address().port} :)`);
+    console.log(`Server running on port ${server.address().port} :)`);
 });
