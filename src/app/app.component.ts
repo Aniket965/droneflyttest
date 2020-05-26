@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import * as ROSLIB from 'roslib';
-import { Observable } from 'rxjs';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 @Component({
   selector: 'app-root',
@@ -8,19 +8,24 @@ import { Observable } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
+  
   title = 'droneflightTest';
   drone = {
     'token': 'afdcebc27c38e43cb2684665aa93e7fcf9e4a0de',
     'vehicalID': 'ewPJUae3'
   };
+
   namespace: String = '';
   latitude = 0;
   longitude = 0;
+  locationSocket:WebSocketSubject<String> = webSocket('ws://localhost:4000/GlobalPosition');
 
   @ViewChild('mapContainer', { static: false }) gmap: ElementRef;
   map: google.maps.Map;
+
   droneStatus = ' ❌ Not Connected';
   coordinates = new google.maps.LatLng(28.676300, 77.183659);
+  
   ros = new ROSLIB.Ros({
     url: 'wss://dev.flytbase.com/websocket'
   });
@@ -66,7 +71,9 @@ export class AppComponent implements AfterViewInit {
       name: '/' + this.namespace + '/navigation/position_set',
       serviceType: 'core_api/PositionSet'
     });
-    const request = new ROSLIB.ServiceRequest({
+  
+  
+  const request = new ROSLIB.ServiceRequest({
       x: x,
       y: y,
       z: 0,
@@ -77,6 +84,8 @@ export class AppComponent implements AfterViewInit {
       yaw_valid : false,
       body_frame : true
   });
+
+
   positionSet.callService(request, function(result) {
       console.log('Result for service call on '
         + positionSet.name
@@ -90,8 +99,16 @@ export class AppComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.map = new google.maps.Map(this.gmap.nativeElement, this.mapOptions);
     this.marker.setMap(this.map);
+  
+    this.locationSocket.asObservable().subscribe( (data:any) => {
+      const { latitude, longitude } = data;
+      let location = new google.maps.LatLng(latitude, longitude);
+      this.map.panTo(location);
+      this.marker.setPosition(location);
 
+    });
 
+    
     const authService = new ROSLIB.Service({
       ros: this.ros,
       name: '/websocket_auth',
@@ -102,40 +119,16 @@ export class AppComponent implements AfterViewInit {
       authorization: 'Token ' + this.drone.token
     });
 
-    const that = this;
+
     this.ros.on('connection', (id) => {
       console.log(id, 'Connected to web socket server.');
       authService.callService(request, result => {
         if (result.success) {
           console.log('Sccess > ', result);
           this.droneStatus = '✅ Connected';
-          const namespace = new ROSLIB.Service({
-            ros: this.ros,
-            name: '/get_global_namespace',
-            serviceType: 'core_api/ParamGetGlobalNamespace'
-          });
 
-
-
-          namespace.callService(new ROSLIB.ServiceRequest({}), function (result: any) {
-            that.handleNameSpace(result.param_info.param_value);
-            const gpsData = new ROSLIB.Topic({
-              ros: that.ros,
-              name: '/' + result.param_info.param_value + '/mavros/global_position/global',
-              messageType: 'sensor_msgs/NavSatFix'
-            });
-
-            gpsData.subscribe(function (message) {
-              const { latitude, longitude } = message;
-
-              let location = new google.maps.LatLng(latitude, longitude);
-              that.map.panTo(location);
-              that.marker.setPosition(location);
-
-              // that.handleLatLong(latitude, longitude);
-            });
-
-          });
+        } else {
+           alert('Not able to Connect');
         }
       });
     });
